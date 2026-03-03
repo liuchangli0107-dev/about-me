@@ -71,3 +71,12 @@ export default defineConfig([
   },
 ])
 ```
+
+## Changelog
+
+### 2023-10-27
+*   **fix(footer):** Corrected the layout of the contact information in the footer.
+    *   Consolidated the email, phone, and GitHub links into a single flex container to ensure they appear in a single row.
+    *   Unified the styling for all contact items for a consistent look.
+    *   Made the phone number a clickable `tel:` link for better usability on mobile devices.
+    *   Adjusted icon sizes and text elements for better alignment and visual consistency.
