@@ -13,6 +13,7 @@ import {
 import profileImage from './assets/profile.jpg';
 import { experiences, education, philosophies } from './data';
 import ExperienceCard from './components/ExperienceCard';
+import TodoList from './components/TodoList';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('about');
@@ -40,7 +41,7 @@ const App: React.FC = () => {
                   <span className="text-blue-600">資深 PHP 工程師</span>
                 </h1>
                 <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  熟悉 PHP 生態系，具備處理高併發 API、 ERP 系統與金融帳務系統的經驗。理解電商 ERP 核心架構（倉儲、對帳、物流）與加密貨幣交易所業務（錢包應用、手續費分潤、用戶黏著度、即時推播）。熱衷技術傳承，具備將複雜邏輯轉化為簡明文件與程式碼的能力。堅持「規格先行」與「結構優化」，確保在遠端模式下仍有穩定且高品質的技術產出。為兼顧家庭照顧與教育需求，期望找到一份以高效工作模式取代固定打卡的工作。
+                  熟悉 PHP 生態系，具備處理高併發 API、 ERP 系統與金融帳務系統的經驗。理解電商 ERP 核心架構（倉儲、對帳、物流）與加密貨幣交易所業務（錢包應用、手續費分潤、用戶黏著度、即時推播）。熱衷技術傳承，具備將複雜 logic 轉化為簡明文件與程式碼的能力。堅持「規格先行」與「結構優化」，確保在遠端模式下仍有穩定且高品質的技術產出。為兼顧家庭照顧與教育需求，期望找到一份以高效工作模式取代固定打卡的工作。
                 </p>
               </div>
             </div>
@@ -158,6 +159,8 @@ const App: React.FC = () => {
             </div>
           </section>
         );
+      case 'todo':
+        return <TodoList />;
       default:
         return null;
     }
@@ -176,6 +179,7 @@ const App: React.FC = () => {
             <button onClick={() => setActiveTab('skills')} className={`hover:text-blue-600 transition-colors ${activeTab === 'skills' ? 'text-blue-600' : ''}`}>框架與技術</button>
             <button onClick={() => setActiveTab('experience')} className={`hover:text-blue-600 transition-colors ${activeTab === 'experience' ? 'text-blue-600' : ''}`}>實戰經驗</button>
             <button onClick={() => setActiveTab('philosophy')} className={`hover:text-blue-600 transition-colors ${activeTab === 'philosophy' ? 'text-blue-600' : ''}`}>背景與理念</button>
+            <button onClick={() => setActiveTab('todo')} className={`hover:text-blue-600 transition-colors ${activeTab === 'todo' ? 'text-blue-600' : ''}`}>待辦事項</button>
           </div>
           <a href="mailto:liuchangli0107@gmail.com" className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm">
             聯繫我

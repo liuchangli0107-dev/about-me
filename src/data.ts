@@ -3,32 +3,32 @@ import type { Experience, Education, Philosophy } from './types';
 
 export const experiences: Experience[] = [
   {
-    company: '神樂科技有限公司',
-    role: '資深後端工程師',
-    period: '2022/07 - 2025/12',
-    description: '負責開發與維護加密貨幣交易所延伸業務，包含開發多功能的 Telegram Bot 應用（含錢包、記帳、抽獎及自動化管理功能），用戶端利用類似空投(幣安等交易所常用的做法)吸引新用戶與增加用戶的黏著度，後台部分提供營運人員 Telegram 即時通知與操作。',
-    tags: ['Symfony', 'Phalcon', 'ThinkPHP', 'RabbitMQ', 'Telegram API']
-  },
-  {
-    company: '星羅顧問 / 光曳資訊',
-    role: '高階 PHP 工程師',
-    period: '2017/03 - 2022/03',
-    description: '光曳資訊開發後台系統，使用 CodeIgniter 3 結合 Gearman 處理統計數據，並透過 WebSocket 實現即時告警。星羅顧問整併光曳資訊後，需維護使用 Laravel 的相關專案。',
-    tags: ['CodeIgniter', 'Laravel', 'Gearman', 'WebSocket', 'SSE']
+    company: '異奇網股份有限公司',
+    role: '網頁工程師',
+    period: '2011/12 - 2013/12',
+    description: '這是我第一份網路相關工作，公司營運業務為客製化APP為主，提供用戶網頁與APP等相關服務，其中包含 華人星光大道2 的歌手APP',
+    tags: []
   },
   {
     company: '新加坡商葆光資訊 (uitox)',
     role: 'ERP 後端工程師',
     period: '2013/12 - 2017/01',
-    description: '參與 ASAP 閃電購物、跨境電商（天貓、飛牛網）之 ERP 系統整合。工作內容涵蓋訂單流、倉儲管理、財務對帳及 PDA 行動裝置介面。系統賣出後與華碩交接並協助華碩系統的早期除錯與修復。',
+    description: '這是我第一份大型購物平台的工作，參與 ASAP 閃電購物、跨境電商（天貓、飛牛網）之 ERP 系統整合。工作內容涵蓋訂單流、倉儲管理、財務對帳及 PDA 行動裝置介面。系統賣給華碩後，完成交接並協助華碩系統的早期除錯與修復。',
     tags: ['Oracle', 'RabbitMQ', '國泰世華 API']
   },
   {
-    company: '異奇網股份有限公司',
-    role: '網頁工程師',
-    period: '2011/12 - 2013/12',
-    description: '公司營運業務為客製化APP為主，提供用戶網頁與APP等相關服務，其中包含 華人星光大道2 的歌手APP',
-    tags: []
+    company: '星羅顧問 / 光曳資訊',
+    role: '高階 PHP 工程師',
+    period: '2017/03 - 2022/03',
+    description: '光曳資訊幫其他公司開發後台系統，使用 CodeIgniter 3 結合 Gearman 處理統計數據，並透過 WebSocket 實現即時告警。因為想學習體彩的模型離開光曳資訊3個月，一個可以把真實世界的因素數據化的技術，對一個學統計的人而言，實在太誘人了。但是發現所謂的自建模型其實是參考其他網站的結果後，立馬回到光曳資訊。最後的一年，星羅顧問整併了光曳資訊，因為星羅使用Laravel，所以累積了短暫的Laravel經驗。',
+    tags: ['CodeIgniter', 'Laravel', 'Gearman', 'WebSocket', 'SSE']
+  },
+  {
+    company: '神樂科技有限公司',
+    role: '資深後端工程師',
+    period: '2022/07 - 2025/12',
+    description: '負責開發與維護加密貨幣交易所延伸業務，包含開發多功能的 Telegram Bot 應用（含錢包、記帳、抽獎及其他自動化管理功能），用戶端利用類似空投(幣安等交易所常用的做法)吸引新用戶與增加用戶的黏著度，後台部分提供營運人員 Telegram 即時通知與操作。',
+    tags: ['Symfony', 'Phalcon', 'ThinkPHP', 'RabbitMQ', 'Telegram API']
   }
 ];
 
