@@ -1,12 +1,12 @@
 import { FileText, Zap, CheckCircle2 } from 'lucide-react';
-import type { Experience, Education, Philosophy } from './types';
+import type { Experience, Education, Philosophy, Framework } from './types';
 
 export const experiences: Experience[] = [
   {
     company: '異奇網股份有限公司',
     role: '網頁工程師',
     period: '2011/12 - 2013/12',
-    description: '這是我第一份網路相關工作，公司營運業務為客製化APP為主，提供用戶網頁與APP等相關服務，其中包含 華人星光大道2 的歌手APP',
+    description: '這是我第一份網路相關工作，公司營運業務為客製化APP為主，同時提供用戶網頁與APP(Android與iOS)，其中包含 華人星光大道2 的歌手APP與大量的婚禮和店家APP。現在如果使用AI開發稍微懂一點的人都可以嘗試，但是當時對非工程師來說程式碼如同無字天書。',
     tags: []
   },
   {
@@ -55,4 +55,20 @@ export const philosophies: Philosophy[] = [
     description: '基於接送小孩與參與孩子教育的穩定生活需求，我尋求長期的技術深耕機會。這份家庭責任轉化為我在工作上極高的穩定度與對產出時間的精準掌控。',
     icon: CheckCircle2
   }
+];
+
+export const frameworks: Framework[] = [
+    { name: 'React', description: '前端開發框架', icon: 'react' },
+    { name: 'TypeScript', description: 'JavaScript 的超集合', icon: 'typescript' },
+    { name: 'Firebase', description: '後端即服務平台', icon: 'firebase' },
+    { name: 'Google Cloud', description: '雲端運算服務', icon: 'google-cloud' },
+    { name: 'Docker', description: '容器化平台', icon: 'docker' },
+    { name: 'Git', description: '版本控制系統', icon: 'git' },
+    { name: 'PHP', description: '後端開發語言', icon: 'php' },
+    { name: 'Laravel', description: 'PHP 開發框架', icon: 'laravel' },
+    { name: 'Symfony', description: 'PHP 開發框架', icon: 'symfony' },
+    { name: 'CodeIgniter', description: 'PHP 開發框架', icon: 'codeigniter' },
+    { name: 'RabbitMQ', description: '訊息佇列', icon: 'rabbitmq' },
+    { name: 'MySQL', description: '關聯式資料庫', icon: 'mysql' },
+    { name: 'Oracle', description: '關聯式資料庫', icon: 'oracle' }
 ];

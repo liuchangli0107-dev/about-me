@@ -11,9 +11,10 @@ import {
   GraduationCap
 } from 'lucide-react';
 import profileImage from './assets/profile.jpg';
-import { experiences, education, philosophies } from './data';
+import { experiences, education, philosophies, frameworks } from './data';
 import ExperienceCard from './components/ExperienceCard';
 import TodoList from './components/TodoList';
+import Icon from './components/Icon';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('about');
@@ -55,45 +56,14 @@ const App: React.FC = () => {
                 <h2 className="text-3xl font-bold mb-4">框架與技術</h2>
                 <p className="text-slate-500">後端框架、資料庫與其他技術</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="p-8 rounded-2xl bg-white border border-slate-200 hover:shadow-lg transition-all">
-                  <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-6">
-                    <Server size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Framework</h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-blue-500 mr-2" size={16} /> CodeIgniter</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-blue-500 mr-2" size={16} /> ThinkPHP</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-blue-500 mr-2" size={16} /> Phalcon</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-blue-500 mr-2" size={16} /> Symfony</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-blue-500 mr-2" size={16} /> Laravel</li>
-                  </ul>
-                </div>
-                <div className="p-8 rounded-2xl bg-white border border-slate-200 hover:shadow-lg transition-all">
-                  <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-6">
-                    <Database size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Databases and Caches</h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-indigo-500 mr-2" size={16} /> MySQL</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-indigo-500 mr-2" size={16} /> MS SQL</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-indigo-500 mr-2" size={16} /> Oracle</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-indigo-500 mr-2" size={16} /> Redis</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-indigo-500 mr-2" size={16} /> MongoDB</li>
-                  </ul>
-                </div>
-                <div className="p-8 rounded-2xl bg-white border border-slate-200 hover:shadow-lg transition-all">
-                  <div className="w-12 h-12 bg-slate-800 text-white rounded-xl flex items-center justify-center mb-6">
-                    <Layout size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">Other</h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-slate-500 mr-2" size={16} /> RabbitMQ</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-slate-500 mr-2" size={16} /> Gearman (Queue)</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-slate-500 mr-2" size={16} /> WebSocket</li>
-                    <li className="flex items-center text-slate-600 text-sm"><CheckCircle2 className="text-slate-500 mr-2" size={16} /> Server-Sent Events (SSE)</li>
-                  </ul>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+                {frameworks.map((framework) => (
+                    <div key={framework.name} className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border border-slate-200 hover:shadow-lg transition-all">
+                        <Icon name={framework.icon} className="w-12 h-12 mb-4 text-blue-600" />
+                        <h3 className="text-lg font-bold mb-2">{framework.name}</h3>
+                        <p className="text-sm text-slate-500 text-center">{framework.description}</p>
+                    </div>
+                ))}
               </div>
             </div>
           </section>
@@ -103,7 +73,7 @@ const App: React.FC = () => {
           <section id="experience" className="py-20 px-6 bg-slate-50">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold mb-4">實戰經歷與專案成果</h2>
+                <h2 className="text-3xl font-bold mb-4">工作經歷</h2>
                 <p className="text-slate-500">專注於金融、電商與自動化系統開發</p>
               </div>
               <div className="space-y-12">
@@ -177,7 +147,7 @@ const App: React.FC = () => {
           <div className="hidden md:flex space-x-8 font-medium">
             <button onClick={() => setActiveTab('about')} className={`hover:text-blue-600 transition-colors ${activeTab === 'about' ? 'text-blue-600' : ''}`}>關於我</button>
             <button onClick={() => setActiveTab('skills')} className={`hover:text-blue-600 transition-colors ${activeTab === 'skills' ? 'text-blue-600' : ''}`}>框架與技術</button>
-            <button onClick={() => setActiveTab('experience')} className={`hover:text-blue-600 transition-colors ${activeTab === 'experience' ? 'text-blue-600' : ''}`}>實戰經驗</button>
+            <button onClick={() => setActiveTab('experience')} className={`hover:text-blue-600 transition-colors ${activeTab === 'experience' ? 'text-blue-600' : ''}`}>工作經歷</button>
             <button onClick={() => setActiveTab('philosophy')} className={`hover:text-blue-600 transition-colors ${activeTab === 'philosophy' ? 'text-blue-600' : ''}`}>背景與理念</button>
             <button onClick={() => setActiveTab('todo')} className={`hover:text-blue-600 transition-colors ${activeTab === 'todo' ? 'text-blue-600' : ''}`}>待辦事項</button>
           </div>

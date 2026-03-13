@@ -20,3 +20,9 @@ export interface Philosophy {
   description: string;
   icon: ElementType;
 }
+
+export interface Framework {
+  name: string;
+  description: string;
+  icon: string;
+}
