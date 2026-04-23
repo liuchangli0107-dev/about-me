@@ -59,6 +59,7 @@ class DnsController extends Controller
                 $table->string('device_name');
                 $table->string('domain')->default('unknown');
                 $table->string('status');
+                $table->integer('count')->default(0);
                 $table->integer('latency')->default(0);
                 $table->string('recorded_at'); // 對應您代碼中的 recorded_at
                 $table->timestamps();
