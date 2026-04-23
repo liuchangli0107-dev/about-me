@@ -6,6 +6,9 @@
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.nodejs_20
+    (pkgs.php83.withExtensions ({ enabled, all }: enabled ++ [ all.protobuf ]))
+    pkgs.php83Packages.composer
+    pkgs.openssl
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -14,6 +17,7 @@
     extensions = [
       # "vscodevim.vim"
       "google.gemini-cli-vscode-ide-companion"
+      "devsense.phptools-vscode"
     ];
     workspace = {
       # Runs when a workspace is first created with this `dev.nix` file
@@ -22,14 +26,21 @@
         # Open editors for the following files by default, if they exist:
         default.openFiles = [ "src/App.tsx" "src/App.ts" "src/App.jsx" "src/App.js" ];
       };
-      # To run something each time the workspace is (re)started, use the `onStart` hook
+      # Runs when the workspace is (re)started
+      onStart = {
+        api-backend = "cd api-backend && php artisan serve --port=8000";
+      };
     };
-    # Enable previews and customize configuration
+    # Enable previews and customize ports
     previews = {
       enable = true;
       previews = {
         web = {
-          command = ["npm" "run" "dev" "--" "--port" "$PORT" "--host" "0.0.0.0"];
+          command = [ "npm" "run" "dev" "--" "--port" "$PORT" "--host" "0.0.0.0" ];
+          manager = "web";
+        };
+        api = {
+          command = [ "sh" "-c" "cd api-backend && php artisan serve --port=8000" ];
           manager = "web";
         };
       };

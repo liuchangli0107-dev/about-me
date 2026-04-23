@@ -1,0 +1,19 @@
+[[build.env]]
+name = "GOOGLE_RUNTIME_VERSION"
+value = "8.4"
+
+[[build.env]]
+name = "GOOGLE_PHPIZE_VERSION"
+value = "8.4"
+
+[[build.env]]
+name = "GOOGLE_COMPOSER_VERSION"
+value = "2.6.5"
+
+[[build.env]]
+name = "GOOGLE_BUILDABLE_PROJECT"
+value = "."
+
+[[build.env]]
+name = "DOCUMENT_ROOT"
+value = "public"

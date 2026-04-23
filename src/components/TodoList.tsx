@@ -9,19 +9,25 @@ interface Todo {
 }
 
 const TodoList: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const storedTodos = localStorage.getItem('todos');
+    if (storedTodos) {
+      try {
+        const parsedTodos = JSON.parse(storedTodos);
+        if (Array.isArray(parsedTodos)) {
+          return parsedTodos;
+        }
+      } catch (error) {
+        console.error("Error parsing todos from localStorage", error);
+      }
+    }
+    return [];
+  });
   const [input, setInput] = useState('');
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
   const [dateEditingTodoId, setDateEditingTodoId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const storedTodos = localStorage.getItem('todos');
-    if (storedTodos) {
-      setTodos(JSON.parse(storedTodos));
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
