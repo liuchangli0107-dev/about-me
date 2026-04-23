@@ -1,82 +1,63 @@
-# React + TypeScript + Vite
+# iMac DNS Monitoring Dashboard (Backend & API)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+這是一個基於 **Laravel 11** 與 **React (Vite)** 開發的全棧監控系統，部署於 **Google Cloud Run**。專為接收與呈現多台遠端設備（如 iMac, MacBook）的 DNS 流量分析而設計。
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## React Compiler
+## 🚀 系統核心特性
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Serverless 架構**: 部署於 Google Cloud Run，具備自動擴展能力，並透過 Dockerfile 進行環境標準化。
+* **自癒式 SQLite 初始化**: 針對 Cloud Run 的唯讀特性設計，啟動時會自動偵測並初始化 `/tmp/database.sqlite` 檔案與資料表架構。
+* **RSA 安全傳輸**: 接收端具備 RSA 2048-bit 驗證機制，確保數據從 Python Agent 傳輸至 API 過程中的安全性。
+* **數據歸類 (Domain Grouping)**: 支援將雜亂的網域請求自動歸類為 **GitHub**、**Firebase**、**GoogleCloud** 等邏輯群組。
+* **多設備即時面板**: 透過 `MAX(recorded_at)` 邏輯，即時呈現每台設備最新的連線狀態與流量排行。
 
-## Expanding the ESLint configuration
+## 🏗️ 技術棧
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* **Backend**: Laravel 11 (PHP 8.3)
+* **Frontend**: React 18 + TypeScript + Tailwind CSS
+* **Database**: SQLite
+* **Cloud**: Google Cloud Run / Artifact Registry
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛰️ 整合架構 (System Architecture)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+本專案作為數據中樞，接收來自各個設備端 Agent 的數據：
+* **Agent (採集端)**: [liuchangli0107-dev/dns-monitor](https://github.com/liuchangli0107-dev/dns-monitor)
+* **Dashboard (呈現端)**: 即本專案之後端 API 與前端 UI。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+
+
+## 🛠️ 開發與部署
+
+### 部署至 Cloud Run (範例)
+```bash
+gcloud run deploy about-me \
+  --source . \
+  --platform managed \
+  --region asia-east1 \
+  --allow-unauthenticated \
+  --set-env-vars="DB_CONNECTION=sqlite"
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📝 最近更新
+* **2026-04-23**: 
+    * 完成 Firebase 依賴清理，全面轉向 Cloud Run API 架構。
+    * 修正 `recorded_at` 與 `count` 欄位對齊邏輯。
+    * 優化 `DnsController` 的自癒式資料表建立流程。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 🚀 如何僅更新 README 並推送到 GitHub？
+
+請在您的 `about-me` 目錄執行以下指令：
+
+```bash
+# 1. 將修改後的 README.md 加入暫存
+git add README.md
+
+# 2. 提交變更 (註明更新專案說明)
+git commit -m "docs: update README with architecture details and Cloud Run deployment info"
+
+# 3. 推送到 GitHub (使用您剛才產生的 ghp_... Token 連結)
+git push origin main
 ```
-
-## Changelog
-
-### 2023-10-27
-*   **fix(footer):** Corrected the layout of the contact information in the footer.
-    *   Consolidated the email, phone, and GitHub links into a single flex container to ensure they appear in a single row.
-    *   Unified the styling for all contact items for a consistent look.
-    *   Made the phone number a clickable `tel:` link for better usability on mobile devices.
-    *   Adjusted icon sizes and text elements for better alignment and visual consistency.
