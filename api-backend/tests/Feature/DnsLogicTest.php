@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\Api\DnsController;
+use App\Models\DnsLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -23,13 +24,11 @@ class DnsLogicTest extends TestCase
                 'domain' => 'google.com',
                 'status' => 'online',
                 'latency' => 20,
-                'timestamp' => now()->toIso8601String(),
             ],
             [
                 'domain' => 'cloudflare.com',
                 'status' => 'online',
                 'latency' => 15,
-                'timestamp' => now()->toIso8601String(),
             ],
         ];
 
@@ -43,18 +42,27 @@ class DnsLogicTest extends TestCase
         $dbConnection = env('DB_CONNECTION');
 
         if ($dbConnection === 'sqlite') {
-            // For SQLite, we can directly verify the database content
+            // For SQLite, we directly verify the database content,
+            // using Eloquent queries to avoid potential keyword conflicts
+            // with helpers like assertDatabaseHas.
             $this->assertEquals(2, $processedCount);
-            $this->assertDatabaseHas('dns_logs', [
-                'device_name' => $deviceId,
-                'domain' => 'google.com',
-                'latency' => 20,
-            ]);
-            $this->assertDatabaseHas('dns_logs', [
-                'device_name' => $deviceId,
-                'domain' => 'cloudflare.com',
-                'latency' => 15,
-            ]);
+
+            $log1 = DnsLog::where('device_name', $deviceId)
+                          ->where('domain', 'google.com')
+                          ->first();
+            
+            $this->assertNotNull($log1, "Log for google.com not found.");
+            $this->assertEquals('online', $log1->status);
+            $this->assertEquals(20, $log1->latency);
+
+            $log2 = DnsLog::where('device_name', $deviceId)
+                          ->where('domain', 'cloudflare.com')
+                          ->first();
+
+            $this->assertNotNull($log2, "Log for cloudflare.com not found.");
+            $this->assertEquals('online', $log2->status);
+            $this->assertEquals(15, $log2->latency);
+
         } else {
             // For other connections (like firestore), we trust the returned count
             $this->assertGreaterThan(0, $processedCount, "The method should report that it processed entries.");

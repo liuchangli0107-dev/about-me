@@ -8,6 +8,7 @@ class DnsLog extends Model
 {
     protected $fillable = [
         'device_name', 
+        'domain',
         'status', 
         'latency', 
         'local_uuid', 
