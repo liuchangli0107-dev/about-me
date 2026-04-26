@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import TimeAgo from './TimeAgo'; // 匯入 TimeAgo 元件
 
 interface DeviceStatus {
   device_name: string;
@@ -7,28 +8,52 @@ interface DeviceStatus {
   recorded_at: string;
 }
 
+// 定義存儲在 localStorage 中的資料結構
+interface TokenData {
+  token: string;
+  timestamp: number;
+}
+
 const DnsMonitor: React.FC = () => {
   const [statuses, setStatuses] = useState<DeviceStatus[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true); // 新增 isLoading 狀態
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // 1. 初始化檢查：看本地有沒有存過 Token
+  // 1. 初始化檢查：檢查 Token 是否有效且未過期
   useEffect(() => {
-    const savedToken = localStorage.getItem('monitor_token');
-    if (savedToken) {
-      setIsLoggedIn(true);
+    const savedDataString = localStorage.getItem('monitor_token_data');
+    if (savedDataString) {
+      try {
+        const savedData: TokenData = JSON.parse(savedDataString);
+        const oneHour = 60 * 60 * 1000; // 1 小時的毫秒數
+
+        // 檢查時間戳是否已過期
+        if (Date.now() - savedData.timestamp > oneHour) {
+          console.log("Token 已過期，請重新登入");
+          localStorage.removeItem('monitor_token_data');
+          setIsLoggedIn(false);
+        } else {
+          setIsLoggedIn(true);
+        }
+      } catch (e) {
+        // 如果解析出錯，也清除舊資料
+        localStorage.removeItem('monitor_token_data');
+      }
     }
+    // 如果沒有 savedDataString，isLoading 保持 true，直到 fetchStatus 完成
   }, []);
 
   const fetchStatus = async () => {
-    setIsLoading(true); // 開始獲取數據時，設定為載入中
-    const token = localStorage.getItem('monitor_token');
+    setIsLoading(true);
+    const savedDataString = localStorage.getItem('monitor_token_data');
+    const token = savedDataString ? (JSON.parse(savedDataString) as TokenData).token : '';
+    
     try {
       const response = await fetch('/api/dns', {
         headers: {
-          'X-Monitor-Token': token || '',
+          'X-Monitor-Token': token,
           'Accept': 'application/json'
         }
       });
@@ -39,8 +64,7 @@ const DnsMonitor: React.FC = () => {
       }
 
       if (response.status === 401) {
-        // Token 失效或錯誤，強制踢出
-        handleLogout();
+        handleLogout(); // Token 失效或錯誤，強制登出
         return;
       }
 
@@ -49,14 +73,14 @@ const DnsMonitor: React.FC = () => {
     } catch (error) {
       console.error("DNS Monitor 獲取失敗", error);
     } finally {
-      setIsLoading(false); // 無論成功或失敗，結束時都取消載入中
+      setIsLoading(false);
     }
   };
 
   // 2. 登入後啟動輪詢
   useEffect(() => {
     if (isLoggedIn) {
-      fetchStatus(); // 立即獲取一次
+      fetchStatus();
       const timer = setInterval(fetchStatus, 10000);
       return () => clearInterval(timer);
     }
@@ -65,7 +89,11 @@ const DnsMonitor: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password.trim()) {
-      localStorage.setItem('monitor_token', password);
+      const tokenData: TokenData = {
+        token: password,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('monitor_token_data', JSON.stringify(tokenData));
       setIsLoggedIn(true);
       setError('');
     } else {
@@ -74,11 +102,11 @@ const DnsMonitor: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('monitor_token');
+    localStorage.removeItem('monitor_token_data');
     setIsLoggedIn(false);
     setStatuses([]);
     setPassword('');
-    setIsLoading(true); // 登出後重置 isLoading
+    setIsLoading(true);
   };
 
   // --- 登入介面 ---
@@ -130,7 +158,6 @@ const DnsMonitor: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* 根據 isLoading 和 statuses 長度來決定顯示內容 */}
         {isLoading ? (
           <div className="col-span-full text-center py-4 text-slate-500 text-sm italic">
             正在獲取安全數據中...
@@ -149,9 +176,7 @@ const DnsMonitor: React.FC = () => {
               <span className="text-2xl font-mono font-light text-slate-100">
                 {device.latency ?? '--'}<span className="text-xs text-slate-500 ml-1">ms</span>
               </span>
-              <span className="text-[10px] text-slate-500">
-                {new Date(device.recorded_at).toLocaleString('sv-SE')}
-              </span>
+              <TimeAgo timestamp={device.recorded_at} />
             </div>
           </div>
         )) : (
