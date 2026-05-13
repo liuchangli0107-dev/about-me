@@ -58,16 +58,24 @@ class DnsController extends Controller
                 $table->id();
                 $table->string('device_name');
                 $table->string('domain')->default('unknown');
-                $table->string('status');
                 $table->integer('count')->default(0);
-                $table->integer('latency')->default(0);
                 $table->string('recorded_at'); // 對應您代碼中的 recorded_at
                 $table->timestamps();
             });
         }
 
-        $deviceId = $request->input('device_id');
-        $encryptedData = $request->input('data');
+        // 1. 取得參數並設定防呆預設值
+        $deviceId = $request->input('device_id', 'Unknown');
+        $reportType = $request->input('report_type', 'schedule_event');
+        $recordedAt = $request->input('recorded_at', now()->toDateTimeString());
+        $encryptedData = $request->input('data', '');
+
+        Log::info('DNS 數據同步點名', [
+            '設備名稱' => $deviceId,
+            '報告類型' => $reportType,
+            '目標日期' => $recordedAt,
+            '傳入數據' => $encryptedData
+        ]);
 
         if (empty($deviceId) || empty($encryptedData)) {
             return response()->json(['error' => '缺少 device_id 或 data 欄位'], 400);
@@ -108,7 +116,7 @@ class DnsController extends Controller
             }
 
             // 2. 調用核心業務邏輯
-            $count = $this->processAndSaveLogs($batchData, $deviceId);
+            $count = $this->processAndSaveLogs($batchData, $deviceId, $reportType, $recordedAt);
 
             return response()->json(['status' => '處理成功', 'count' => $count], 200);
 
@@ -125,57 +133,52 @@ class DnsController extends Controller
      * @param string $deviceId 設備 ID
      * @return int 成功處理的紀錄數量
      */
-    public function processAndSaveLogs(array $batchData, string $deviceId): int
+    public function processAndSaveLogs(array $batchData, string $deviceId, string $reportType, string $recordedAt): int
     {
         if (empty($batchData)) {
             return 0;
         }
 
-        if (env('DB_CONNECTION') === 'firestore') {
-            $firestore = $this->getFirestore();
-            $batch = $firestore->batch();
-            $collection = $firestore->collection('dns_logs');
+        $count = 0;
 
-            foreach ($batchData as $log) {
-                $newDoc = $collection->document();
-                $batch->set($newDoc, [
-                    'device_name' => $deviceId,
-                    'domain' => $log['domain'] ?? 'unknown',
-                    'status' => $log['status'] ?? 'online',
-                    'latency' => (int) ($log['latency'] ?? 0),
-                    'recorded_at' => $log['timestamp'] ?? now()->toIso8601String(),
-                    'created_at' => new \DateTime(),
-                ]);
+        // 本地 SQLite 模式
+        foreach ($batchData as $log) {
+
+            // 強制歸一化時間為當天 00:00:00
+            $recordedAt = \Carbon\Carbon::parse($recordedAt)->startOfDay()->toDateTimeString();
+
+            if (empty($log['domain'])) {
+                continue;
             }
-            $batch->commit();
-        } else {
-            // 本地 SQLite 模式
-            foreach ($batchData as $log) {
-                DnsLog::create([
-                    'device_name' => $deviceId,
-                    'domain' => $log['domain'] ?? 'unknown',
-                    'status' => $log['status'] ?? 'online',
-                    'latency' => $log['latency'] ?? 0,
-                    'recorded_at' => $log['timestamp'] ?? now()->toIso8601String(),
-                ]);
+
+            if ($reportType === 'schedule_event') {
+                // 邏輯：存在就不動（保護已有的 count），不存在才建立（count 設為 0）
+                \App\Models\DnsLog::firstOrCreate(
+                    [
+                        'device_name' => $deviceId,
+                        'domain'      => $log['domain'],
+                        'recorded_at' => $recordedAt,
+                    ],
+                    [
+                        'count'   => 0, 
+                    ]
+                );
+            } else {
+                // 邏輯：每日通報為 Source of Truth，直接更新
+                \App\Models\DnsLog::updateOrCreate(
+                    [
+                        'device_name' => $deviceId,
+                        'domain'      => $log['domain'],
+                        'recorded_at' => $recordedAt,
+                    ],
+                    [
+                        'count'   => $log['count'],
+                    ]
+                );
             }
+            $count++;
         }
 
-        return count($batchData);
-    }
-
-    /**
-     * 初始化 Firestore (REST 模式封印 gRPC)
-     */
-    private function getFirestore()
-    {
-        // 封印 gRPC, 確保在任何環境下都使用 REST API
-        putenv('GOOGLE_CLOUD_PHP_GRPC_FOR_FIRESTORE=false');
-        putenv('GPB_METADATA_CONF_SKIP_GRPC_CHECK=1');
-
-        return new FirestoreClient([
-            'projectId' => env('FIRESTORE_PROJECT_ID', env('GOOGLE_CLOUD_PROJECT')),
-            'transport' => 'rest',
-        ]);
+        return $count;
     }
 }

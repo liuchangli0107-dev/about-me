@@ -1,22 +1,22 @@
-FROM php:8.4-fpm
+FROM php:8.3-fpm
 
-# 1. 移除 gRPC 和 Protobuf 編譯，只裝 Nginx 和基礎 PHP 擴充
+# 1. 補上 SQLite 依賴，並安裝 pdo_sqlite (對齊 8.3 環境)
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev nginx \
-    && docker-php-ext-install pdo pdo_mysql zip
+    git unzip libzip-dev nginx sqlite3 libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_sqlite pdo_mysql zip
 
 WORKDIR /var/www
 COPY . .
 
-# 2. 建立 SQLite 檔案並給予寫入權限 (這是新戰術的核心)
-RUN mkdir -p database storage \
-    && touch database/database.sqlite \
-    && chown -R www-data:www-data /var/www/database /var/www/storage
+# 2. 建立 SQLite 檔案並給予寫入權限 (改用絕對路徑防呆)
+RUN rm -rf /var/www/database/database.sqlite \
+    && mkdir -p /var/www/database /var/www/storage /var/www/bootstrap/cache \
+    && touch /var/www/database/database.sqlite \
+    && chown -R www-data:www-data /var/www/database /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/database /var/www/storage /var/www/bootstrap/cache
 
-# 3. 複製設定檔
+# 3. 複製設定檔 (請確認您的 nginx.conf 是 listen 8080)
 COPY nginx.conf /etc/nginx/sites-enabled/default
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
 
 # 4. 安裝 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
