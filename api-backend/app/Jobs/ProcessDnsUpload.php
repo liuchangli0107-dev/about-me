@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\DnsLog;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,7 +19,9 @@ class ProcessDnsUpload implements ShouldQueue
 
     public function handle(): void
     {
-        $recordedAt = $this->data['timestamp'] ?? now();
+        $recordedAt = isset($this->data['timestamp'])
+            ? Carbon::createFromTimestamp($this->data['timestamp'])
+            : now();
 
         DnsLog::create([
             'local_uuid'  => $this->data['uuid'] ?? null,

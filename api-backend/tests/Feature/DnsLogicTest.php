@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DnsController;
 use App\Models\DnsLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 class DnsLogicTest extends TestCase
 {
@@ -19,16 +20,15 @@ class DnsLogicTest extends TestCase
     {
         // 1. Prepare fake, unencrypted data
         $deviceId = 'test-logic-device';
+        $recordedAt = Carbon::now()->toDateTimeString();
         $logData = [
             [
                 'domain' => 'google.com',
-                'status' => 'online',
-                'latency' => 20,
+                'count' => 120,
             ],
             [
                 'domain' => 'cloudflare.com',
-                'status' => 'online',
-                'latency' => 15,
+                'count' => 85,
             ],
         ];
 
@@ -36,15 +36,13 @@ class DnsLogicTest extends TestCase
         $controller = new DnsController();
 
         // 3. Call the core logic method
-        $processedCount = $controller->processAndSaveLogs($logData, $deviceId);
+        $processedCount = $controller->processAndSaveLogs($logData, $deviceId, 'daily_report', $recordedAt);
 
         // 4. Assert the results based on the database connection
         $dbConnection = env('DB_CONNECTION');
 
         if ($dbConnection === 'sqlite') {
-            // For SQLite, we directly verify the database content,
-            // using Eloquent queries to avoid potential keyword conflicts
-            // with helpers like assertDatabaseHas.
+            // For SQLite, we directly verify the database content.
             $this->assertEquals(2, $processedCount);
 
             $log1 = DnsLog::where('device_name', $deviceId)
@@ -52,16 +50,14 @@ class DnsLogicTest extends TestCase
                           ->first();
             
             $this->assertNotNull($log1, "Log for google.com not found.");
-            $this->assertEquals('online', $log1->status);
-            $this->assertEquals(20, $log1->latency);
+            $this->assertEquals(120, $log1->count);
 
             $log2 = DnsLog::where('device_name', $deviceId)
                           ->where('domain', 'cloudflare.com')
                           ->first();
 
             $this->assertNotNull($log2, "Log for cloudflare.com not found.");
-            $this->assertEquals('online', $log2->status);
-            $this->assertEquals(15, $log2->latency);
+            $this->assertEquals(85, $log2->count);
 
         } else {
             // For other connections (like firestore), we trust the returned count

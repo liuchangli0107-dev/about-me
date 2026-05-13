@@ -131,6 +131,8 @@ class DnsController extends Controller
      * 
      * @param array $batchData 日誌數據陣列
      * @param string $deviceId 設備 ID
+     * @param string $reportType 報告類型
+     * @param string $recordedAt 記錄時間
      * @return int 成功處理的紀錄數量
      */
     public function processAndSaveLogs(array $batchData, string $deviceId, string $reportType, string $recordedAt): int
@@ -141,12 +143,11 @@ class DnsController extends Controller
 
         $count = 0;
 
+        // 將傳入的時間字串格式化為 'Y-m-d H:i:s'，以保留時間資訊
+        $formattedDate = \Carbon\Carbon::parse($recordedAt)->format('Y-m-d H:i:s');
+
         // 本地 SQLite 模式
         foreach ($batchData as $log) {
-
-            // 強制歸一化時間為當天 00:00:00
-            $recordedAt = \Carbon\Carbon::parse($recordedAt)->startOfDay()->toDateTimeString();
-
             if (empty($log['domain'])) {
                 continue;
             }
@@ -157,7 +158,7 @@ class DnsController extends Controller
                     [
                         'device_name' => $deviceId,
                         'domain'      => $log['domain'],
-                        'recorded_at' => $recordedAt,
+                        'recorded_at' => $formattedDate,
                     ],
                     [
                         'count'   => 0, 
@@ -169,7 +170,7 @@ class DnsController extends Controller
                     [
                         'device_name' => $deviceId,
                         'domain'      => $log['domain'],
-                        'recorded_at' => $recordedAt,
+                        'recorded_at' => $formattedDate,
                     ],
                     [
                         'count'   => $log['count'],
